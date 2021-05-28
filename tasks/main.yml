@@ -1,0 +1,55 @@
+---
+# tasks file for k8s-workers
+
+- name: "Configuring yum repo for kubernetes"
+  yum_repository:
+     name: Kubernetes
+     description: "yum for kubernetes"
+     baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+     enabled: yes
+     gpgcheck: yes
+     repo_gpgcheck: yes
+     gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: "to install kubeadm,kubectl and kubelet"
+  package:
+     name: "{{ item }}"
+     state: present
+  loop: "{{ software }}"
+
+- name: "enabling services "
+  service:
+     name: "{{ item }}"
+     state: started
+     enabled: yes
+  loop: "{{ service  }}"
+
+- name: copy daemon file
+  copy:
+     src: "{{ src_docker }}"
+     dest: "{{ dest_docker }}"
+
+- name: "starting and enabling docker "
+  service:
+     name: "docker"
+     state: restarted
+
+- name: config file
+  copy:
+      src: "{{ conf_src }}"
+      dest: "{{ conf_dest }}"
+  register: result
+
+- name: Load settings from all system configuration files
+  shell: sysctl --system
+
+
+- name: Copy the join command to server location
+  copy:
+          src: join-command
+          dest: /tmp/join-command.sh
+          mode: +x
+
+- name: join command
+  shell: "sh /tmp/join-command.sh"
+

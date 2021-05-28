@@ -1,0 +1,27 @@
+---
+# vars file for k8s-workers
+
+
+# required softwares
+software:
+    - docker
+    - iproute-tc
+    - kubectl
+    - kubeadm
+    - kubelet
+
+service:
+    - docker
+    - kubelet
+
+# daemonfile
+
+src_docker: /root/k8s/daemon.json
+dest_docker: /etc/docker/daemon.json
+
+#k8s configuration file
+
+conf_src: /root/k8s/k8s.conf
+conf_dest: /etc/sysctl.d/k8s.conf
+
+
